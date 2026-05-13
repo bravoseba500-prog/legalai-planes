@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LegalAI — Automatización para Estudios Jurídicos</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0D0D0B;
+  --ink2: #1E1E1A;
+  --paper: #F7F4EE;
+  --paper2: #EDE9E0;
+  --paper3: #E2DDD3;
+  --gold: #9B7D3A;
+  --gold2: #C4A25A;
+  --gold3: #E8D5A8;
+  --sage: #4A6741;
+  --slate: #3D4F5C;
+  --muted: #7A7668;
+  --border: rgba(13,13,11,0.1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+/* ── NOISE OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 56px;
+  background: rgba(247,244,238,0.9);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.4rem;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.nav-logo em { color: var(--gold); font-style: italic; }
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--ink); }
+
+.nav-cta {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--ink);
+  padding: 10px 24px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.nav-cta:hover { background: var(--gold); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 56px 80px;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+}
+
+.hero-bg-text {
+  position: absolute;
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(8rem, 18vw, 18rem);
+  font-weight: 400;
+  color: rgba(13,13,11,0.03);
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.2s both;
+}
+
+.hero-tag::before, .hero-tag::after {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.hero-h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-bottom: 24px;
+  max-width: 820px;
+  opacity: 0;
+  animation: fadeUp 0.7s ease 0.4s both;
+}
+
+.hero-h1 em { font-style: italic; color: var(--gold); }
+
+.hero-sub {
+  font-size: 1.05rem;
+  font-weight: 300;
+  color: var(--muted);
+  max-width: 560px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.6s both;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.8s both;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 16px 36px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: 1.5px solid var(--ink);
+}
+
+.btn-primary:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: all 0.2s;
+}
+
+.btn-ghost:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 48px;
+  margin-top: 64px;
+  padding-top: 48px;
+  border-top: 1px solid var(--border);
+  opacity: 0;
+  animation: fadeUp 0.6s ease 1s both;
+}
+
+.stat-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.stat-num em { color: var(--gold); font-style: normal; }
+.stat-label { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+
+/* ── MARQUEE ── */
+.marquee-wrap {
+  background: var(--ink2);
+  padding: 14px 0;
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: flex;
+  animation: marquee 32s linear infinite;
+  white-space: nowrap;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 28px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(247,244,238,0.35);
+}
+
+.marquee-dot { width: 3px; height: 3px; background: var(--gold2); border-radius: 50%; flex-shrink: 0; }
+
+/* ── SECTION BASE ── */
+section { padding: 96px 56px; }
+
+.section-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+  display: block;
+}
+
+.section-h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+
+.section-h2 em { font-style: italic; color: var(--gold); }
+
+.section-body {
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 520px;
+}
+
+/* ── PROBLEMA ── */
+.problem-section {
+  background: var(--ink);
+  color: var(--paper);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.problem-section .section-tag { color: var(--gold2); }
+.problem-section .section-h2 { color: var(--paper); }
+.problem-section .section-body { color: rgba(247,244,238,0.5); }
+
+.problem-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.problem-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(247,244,238,0.08);
+}
+
+.problem-item:last-child { border-bottom: none; }
+
+.problem-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--gold2);
+  opacity: 0.7;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.problem-text strong {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--paper);
+  margin-bottom: 4px;
+}
+
+.problem-text span {
+  font-size: 0.8rem;
+  color: rgba(247,244,238,0.45);
+  line-height: 1.5;
+}
+
+/* ── PLANES ── */
+.planes-section {
+  background: var(--paper);
+}
+
+.planes-intro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: end;
+  margin-bottom: 56px;
+}
+
+.planes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.plan-card {
+  background: var(--paper2);
+  padding: 44px 36px 36px;
+  position: relative;
+  transition: transform 0.25s;
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-card:hover { transform: translateY(-3px); z-index: 2; }
+
+.plan-card.featured {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.plan-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold2);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.plan-num::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(155,125,58,0.3);
+}
+
+.plan-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.7rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.plan-card.featured .plan-name { color: var(--paper); }
+
+.plan-tagline {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 28px;
+  font-weight: 300;
+  line-height: 1.5;
+}
+
+.plan-card.featured .plan-tagline { color: rgba(247,244,238,0.5); }
+
+.plan-price {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.6rem;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.plan-card.featured .plan-price { color: var(--gold2); }
+
+.plan-price-note {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 32px;
+}
+
+.plan-card.featured .plan-price-note { color: rgba(247,244,238,0.35); }
+
+.plan-divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 28px;
+}
+
+.plan-card.featured .plan-divider { background: rgba(247,244,238,0.1); }
+
+.plan-features {
+  list-style: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 36px;
+}
+
+.plan-features li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(13,13,11,0.06);
+  font-size: 0.83rem;
+  font-weight: 300;
+  color: var(--ink2);
+  line-height: 1.5;
+}
+
+.plan-card.featured .plan-features li {
+  border-bottom-color: rgba(247,244,238,0.06);
+  color: rgba(247,244,238,0.75);
+}
+
+.plan-features li:last-child { border-bottom: none; }
+
+.plan-features li::before {
+  content: '→';
+  color: var(--gold);
+  font-size: 0.7rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.plan-btn {
+  display: block;
+  text-align: center;
+  padding: 14px 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.2s;
+  margin-top: auto;
+}
+
+.plan-btn-outline {
+  border: 1.5px solid var(--ink);
+  color: var(--ink);
+}
+
+.plan-btn-outline:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.plan-btn-solid {
+  background: var(--gold);
+  border: 1.5px solid var(--gold);
+  color: var(--paper);
+}
+
+.plan-btn-solid:hover {
+  background: var(--gold2);
+  border-color: var(--gold2);
+}
+
+.featured-tag {
+  position: absolute;
+  top: 0; left: 36px;
+  background: var(--gold);
+  color: var(--ink);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  font-weight: 500;
+}
+
+/* ── DETALLE PLANES ── */
+.detail-section { background: var(--paper2); }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-top: 56px;
+}
+
+.detail-card {
+  background: var(--paper);
+  padding: 36px 28px;
+}
+
+.detail-plan-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.2rem;
+  color: var(--ink);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detail-plan-name::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.detail-feature {
+  margin-bottom: 20px;
+}
+
+.detail-feature-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail-feature-title::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.detail-feature-body {
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.6;
+  padding-left: 12px;
+}
+
+.detail-locked {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--paper2);
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 20px;
+}
+
+/* ── FLUJO ── */
+.flujo-section { background: var(--paper); }
+
+.flujo-steps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  margin-top: 56px;
+  position: relative;
+}
+
+.flujo-steps::before {
+  content: '';
+  position: absolute;
+  top: 32px;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: var(--border);
+}
+
+.flujo-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.flujo-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  font-size: 1.4rem;
+}
+
+.flujo-step.highlight .flujo-icon {
+  background: var(--gold3);
+  border-color: var(--gold2);
+}
+
+.flujo-step-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.flujo-step-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.flujo-step-body {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── INTEGRACIONES ── */
+.integrations-section {
+  background: var(--paper2);
+  padding: 72px 56px;
+}
+
+.int-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-top: 40px;
+}
+
+.int-item {
+  background: var(--paper);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: background 0.2s;
+}
+
+.int-item:hover { background: var(--gold3); }
+
+.int-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--paper2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.int-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.int-cat {
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-top: 2px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.06em;
+}
+
+/* ── CTA ── */
+.cta-section {
+  background: var(--ink);
+  padding: 120px 56px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-section::before {
+  content: 'LEX';
+  position: absolute;
+  font-family: 'DM Serif Display', serif;
+  font-size: 28vw;
+  color: rgba(247,244,238,0.02);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  letter-spacing: -0.05em;
+  user-select: none;
+}
+
+.cta-tag { color: var(--gold2); }
+
+.cta-h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.2rem, 4.5vw, 4rem);
+  font-weight: 400;
+  color: var(--paper);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.cta-h2 em { color: var(--gold2); font-style: italic; }
+
+.cta-sub {
+  font-size: 1rem;
+  font-weight: 300;
+  color: rgba(247,244,238,0.45);
+  max-width: 440px;
+  margin: 0 auto 48px;
+  line-height: 1.7;
+  position: relative;
+}
+
+.cta-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.btn-cta-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--gold);
+  color: var(--ink);
+  padding: 18px 44px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: 1.5px solid var(--gold);
+}
+
+.btn-cta-gold:hover {
+  background: var(--gold2);
+  border-color: var(--gold2);
+  transform: translateY(-2px);
+}
+
+.btn-cta-border {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1.5px solid rgba(247,244,238,0.2);
+  color: rgba(247,244,238,0.6);
+  padding: 18px 36px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-cta-border:hover {
+  border-color: rgba(247,244,238,0.5);
+  color: var(--paper);
+}
+
+.cta-note {
+  margin-top: 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: rgba(247,244,238,0.2);
+  position: relative;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: #080806;
+  padding: 40px 56px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.2rem;
+  color: rgba(247,244,238,0.4);
+}
+
+.footer-logo em { color: var(--gold); font-style: italic; }
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+}
+
+.footer-links a {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(247,244,238,0.25);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--gold2); }
+
+.footer-copy {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  color: rgba(247,244,238,0.15);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  section { padding: 72px 24px; }
+  .hero { padding: 120px 24px 72px; }
+  .problem-section, .planes-intro { grid-template-columns: 1fr; gap: 40px; }
+  .planes-grid, .detail-grid { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .flujo-steps { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .flujo-steps::before { display: none; }
+  .int-grid { grid-template-columns: 1fr 1fr; }
+  .hero-stats { gap: 28px; }
+  .cta-section { padding: 80px 24px; }
+  footer { padding: 28px 24px; }
+  .integrations-section { padding: 60px 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Legal<em>AI</em></div>
+  <ul class="nav-links">
+    <li><a href="#planes">Planes</a></li>
+    <li><a href="#flujo">Cómo funciona</a></li>
+    <li><a href="#integraciones">Integraciones</a></li>
+  </ul>
+  <a href="#contacto" class="nav-cta">Agendar demo</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-text">LEX</div>
+  <div class="hero-tag">AI Automation · Estudios Jurídicos</div>
+  <h1 class="hero-h1">Su estudio respondiendo <em>consultas a las 11 PM.</em> Automáticamente.</h1>
+  <p class="hero-sub">Automatización con IA que recibe consultas, califica casos y agenda reuniones — 24 horas, sin contratar personal extra.</p>
+  <div class="hero-actions">
+    <a href="#planes" class="btn-primary">Ver planes →</a>
+    <a href="https://clinicai-demo.vercel.app" target="_blank" class="btn-ghost">Demo en vivo ↗</a>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="stat-num">24<em>h</em></div>
+      <div class="stat-label">Disponibilidad</div>
+    </div>
+    <div>
+      <div class="stat-num">&lt;45<em>s</em></div>
+      <div class="stat-label">Tiempo de respuesta</div>
+    </div>
+    <div>
+      <div class="stat-num">3<em>×</em></div>
+      <div class="stat-label">Más consultas atendidas</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item"><span class="marquee-dot"></span>Derecho laboral</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Derecho civil</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Derecho de familia</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Litigación</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Contratos</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Previsional</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>WhatsApp 24/7</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>CRM integrado</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Microsoft 365</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Biobío · Santiago · Chile</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Derecho laboral</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Derecho civil</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Derecho de familia</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Litigación</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Contratos</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Previsional</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>WhatsApp 24/7</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>CRM integrado</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Microsoft 365</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Biobío · Santiago · Chile</span>
+  </div>
+</div>
+
+<!-- PROBLEMA -->
+<section class="problem-section fade-up">
+  <div>
+    <span class="section-tag">El problema</span>
+    <h2 class="section-h2">Cada consulta sin respuesta es un <em>cliente perdido</em></h2>
+    <p class="section-body" style="color: rgba(247,244,238,0.45);">Los estudios jurídicos pierden clientes potenciales todos los días por no tener un sistema de respuesta inmediata fuera del horario de oficina.</p>
+  </div>
+  <ul class="problem-list">
+    <li class="problem-item">
+      <span class="problem-num">01</span>
+      <div class="problem-text">
+        <strong>Consultas de noche sin respuesta</strong>
+        <span>Un despido injustificado no ocurre a las 10 AM. El cliente escribe de noche, no obtiene respuesta y llama a otro abogado.</span>
+      </div>
+    </li>
+    <li class="problem-item">
+      <span class="problem-num">02</span>
+      <div class="problem-text">
+        <strong>Casos mal calificados</strong>
+        <span>Sin filtro previo, el abogado dedica tiempo a consultas que no son del área del estudio o no tienen viabilidad.</span>
+      </div>
+    </li>
+    <li class="problem-item">
+      <span class="problem-num">03</span>
+      <div class="problem-text">
+        <strong>Sin seguimiento sistematizado</strong>
+        <span>El cliente que consultó pero no contrató se pierde en el olvido. Sin recordatorios automáticos, no vuelve.</span>
+      </div>
+    </li>
+    <li class="problem-item">
+      <span class="problem-num">04</span>
+      <div class="problem-text">
+        <strong>Documentos redactados manualmente</strong>
+        <span>Contratos, demandas y escritos que podrían tener un borrador inicial en minutos tardan horas en el estudio.</span>
+      </div>
+    </li>
+  </ul>
+</section>
+
+<!-- PLANES -->
+<section class="planes-section" id="planes">
+  <div class="planes-intro fade-up">
+    <div>
+      <span class="section-tag">Planes</span>
+      <h2 class="section-h2">Tres niveles de <em>automatización</em></h2>
+    </div>
+    <p class="section-body">Desde la respuesta automática básica hasta el copiloto jurídico completo. Sin contratos anuales. Sin costos ocultos.</p>
+  </div>
+
+  <div class="planes-grid fade-up">
+    <!-- Plan 1 -->
+    <div class="plan-card">
+      <div class="plan-num">Plan 01</div>
+      <div class="plan-name">CaseIntake</div>
+      <div class="plan-tagline">Para estudios que quieren responder consultas 24/7 sin perder casos por demora.</div>
+      <div class="plan-price">$497</div>
+      <div class="plan-price-note">Setup único + $99/mes · Activo en 48h</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Bot WhatsApp con respuesta inmediata 24/7</li>
+        <li>Calificación automática por área legal y urgencia</li>
+        <li>Notificación al abogado por cada caso calificado</li>
+        <li>Agendamiento de consulta inicial directo en WhatsApp</li>
+        <li>CRM básico en Google Sheets con ficha de caso</li>
+        <li>Recordatorio automático de la reunión agendada</li>
+        <li>Soporte y mantenimiento incluido en mensualidad</li>
+      </ul>
+      <a href="#contacto" class="plan-btn plan-btn-outline">Comenzar</a>
+    </div>
+
+    <!-- Plan 2 -->
+    <div class="plan-card featured">
+      <div class="featured-tag">Más solicitado</div>
+      <div class="plan-num" style="color: var(--gold2);">Plan 02</div>
+      <div class="plan-name">LegalOps Suite</div>
+      <div class="plan-tagline">Operación completa del estudio automatizada — desde la consulta hasta el seguimiento post-caso.</div>
+      <div class="plan-price">$1,800</div>
+      <div class="plan-price-note">Setup único + $199/mes · Activo en 5 días</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Todo CaseIntake incluido</li>
+        <li>Dashboard CRM con pipeline de casos por área</li>
+        <li>Ficha completa de cliente con historial</li>
+        <li>Seguimiento automático a 24h, 7 días y 30 días</li>
+        <li>Generación de borradores de contratos con IA</li>
+        <li>Recordatorios de plazos procesales automáticos</li>
+        <li>Reporte semanal de métricas del estudio</li>
+        <li>Integración con calendario del equipo</li>
+        <li>Soporte prioritario + mejoras mensuales</li>
+      </ul>
+      <a href="#contacto" class="plan-btn plan-btn-solid">Agendar demo</a>
+    </div>
+
+    <!-- Plan 3 -->
+    <div class="plan-card">
+      <div class="plan-num">Plan 03</div>
+      <div class="plan-name">Copiloto Jurídico</div>
+      <div class="plan-tagline">El estudio opera con IA como colaborador activo — en documentos, investigación y gestión.</div>
+      <div class="plan-price">$2,500</div>
+      <div class="plan-price-note">Por mes · Todo incluido · Sin setup adicional</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Todo LegalOps Suite incluido</li>
+        <li>Claude integrado en Word — revisión y sugerencias en tiempo real</li>
+        <li>Integración con Outlook — resumen de emails y respuestas sugeridas</li>
+        <li>Revisión automática de contratos con detección de riesgos</li>
+        <li>Investigación jurídica asistida (jurisprudencia, doctrina)</li>
+        <li>Generación de demandas y escritos desde plantillas del estudio</li>
+        <li>Multi-canal: WhatsApp + email + formulario web</li>
+        <li>Dashboard personalizado con logo del estudio</li>
+        <li>Nuevas automatizaciones cada mes</li>
+        <li>Soporte dedicado · Respuesta en 2h</li>
+      </ul>
+      <a href="#contacto" class="plan-btn plan-btn-outline">Consultar</a>
+    </div>
+  </div>
+</section>
+
+<!-- DETALLE PLANES -->
+<section class="detail-section fade-up">
+  <span class="section-tag" style="display:block; text-align:center;">Detalle técnico</span>
+  <h2 class="section-h2" style="text-align:center; margin: 0 auto 8px; max-width:600px;">Qué hace cada plan <em>en la práctica</em></h2>
+  <div class="detail-grid">
+    <!-- CaseIntake -->
+    <div class="detail-card">
+      <div class="detail-plan-name">CaseIntake</div>
+      <div class="detail-feature">
+        <div class="detail-feature-title">Recepción y calificación</div>
+        <div class="detail-feature-body">La IA recibe el mensaje, identifica el área legal (laboral, civil, familia, etc.), evalúa la urgencia y decide si el caso es viable para el estudio. Notifica al abogado solo cuando vale la pena.</div>
+      </div>
+      <div class="detail-feature">
+        <div class="detail-feature-title">Respuesta automática</div>
+        <div class="detail-feature-body">Responde con el tono del estudio, solicita información básica del caso y ofrece horarios disponibles para la primera consulta. Sin que el abogado intervenga.</div>
+      </div>
+      <div class="detail-feature">
+        <div class="detail-feature-title">CRM básico</div>
+        <div class="detail-feature-body">Cada consulta queda registrada en Google Sheets con nombre, caso, área legal, urgencia y estado. Acceso desde cualquier dispositivo.</div>
+      </div>
+      <div class="detail-locked">🔒 Dashboard avanzado, documentos y copiloto disponibles en planes superiores</div>
+    </div>
+
+    <!-- LegalOps -->
+    <div class="detail-card" style="background: var(--gold3);">
+      <div class="detail-plan-name">LegalOps Suite</div>
+      <div class="detail-feature">
+        <div class="detail-feature-title">Pipeline de casos</div>
+        <div class="detail-feature-body">Vista kanban de todos los casos activos organizados por estado: nuevo, en proceso, esperando documentos, cerrado. El equipo ve el estado en tiempo real.</div>
+      </div>
+      <div class="detail-feature">
+        <div class="detail-feature-title">Borradores con IA</div>
+        <div class="detail-feature-body">El sistema genera un borrador inicial de contrato de honorarios, carta de representación o comunicación al cliente basado en la información del caso. El abogado revisa y ajusta.</div>
+      </div>
+      <div class="detail-feature">
+        <div class="detail-feature-title">Seguimiento automático</div>
+        <div class="detail-feature-body">Si el cliente no contrató, el sistema lo contacta automáticamente a los 7 y 30 días. Si hay plazos procesales, envía recordatorios al equipo con 48h de anticipación.</div>
+      </div>
+      <div class="detail-feature">
+        <div class="detail-feature-title">Métricas semanales</div>
+        <div class="detail-feature-body">Reporte automático: consultas recibidas, casos cerrados, conversión, áreas más solicitadas, tiempo promedio de respuesta.</div>
+      </div>
+    </div>
+
+    <!-- Copiloto -->
+    <div class="detail-card">
+      <div class="detail-plan-name">Copiloto Jurídico</div>
+      <div class="detail-feature">
+        <div class="detail-feature-title">Claude en Word</div>
+        <div class="detail-feature-body">Mientras el abogado redacta una demanda, Claude sugiere artículos relevantes del Código del Trabajo, detecta inconsistencias y propone cláusulas adicionales en tiempo real.</div>
+      </div>
+      <div class="detail-feature">
+        <div class="detail-feature-title">Revisión de contratos</div>
+        <div class="detail-feature-body">El estudio sube un contrato y la IA identifica cláusulas de riesgo, ambigüedades, ausencia de protecciones estándar y genera un informe de observaciones en minutos.</div>
+      </div>
+      <div class="detail-feature">
+        <div class="detail-feature-title">Investigación asistida</div>
+        <div class="detail-feature-body">El abogado pregunta sobre jurisprudencia de un tema específico y Claude busca y resume los precedentes más relevantes, con citas para incluir directamente en el escrito.</div>
+      </div>
+      <div class="detail-feature">
+        <div class="detail-feature-title">Outlook integrado</div>
+        <div class="detail-feature-body">Emails largos de clientes resumidos automáticamente. Sugerencia de respuesta lista para enviar con el estilo del estudio. Seguimiento de hilos sin abrir cada email.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FLUJO -->
+<section class="flujo-section" id="flujo">
+  <div class="fade-up" style="text-align:center; max-width:600px; margin: 0 auto;">
+    <span class="section-tag" style="display:block;">Cómo funciona</span>
+    <h2 class="section-h2">De la consulta al caso <em>en 5 pasos</em></h2>
+  </div>
+  <div class="flujo-steps fade-up">
+    <div class="flujo-step">
+      <div class="flujo-icon">💬</div>
+      <div class="flujo-step-num">01</div>
+      <div class="flujo-step-title">Consulta entra</div>
+      <div class="flujo-step-body">WhatsApp recibe el mensaje a cualquier hora</div>
+    </div>
+    <div class="flujo-step highlight">
+      <div class="flujo-icon">🤖</div>
+      <div class="flujo-step-num">02</div>
+      <div class="flujo-step-title">IA califica</div>
+      <div class="flujo-step-body">Claude analiza área legal, urgencia y viabilidad</div>
+    </div>
+    <div class="flujo-step">
+      <div class="flujo-icon">📅</div>
+      <div class="flujo-step-num">03</div>
+      <div class="flujo-step-title">Agendamiento</div>
+      <div class="flujo-step-body">Ofrece horarios y confirma la cita automáticamente</div>
+    </div>
+    <div class="flujo-step highlight">
+      <div class="flujo-icon">📋</div>
+      <div class="flujo-step-num">04</div>
+      <div class="flujo-step-title">CRM actualizado</div>
+      <div class="flujo-step-body">Ficha del caso creada con toda la información</div>
+    </div>
+    <div class="flujo-step">
+      <div class="flujo-icon">🔔</div>
+      <div class="flujo-step-num">05</div>
+      <div class="flujo-step-title">Seguimiento</div>
+      <div class="flujo-step-body">Recordatorios automáticos hasta cerrar el caso</div>
+    </div>
+  </div>
+</section>
+
+<!-- INTEGRACIONES -->
+<section class="integrations-section" id="integraciones">
+  <div class="fade-up">
+    <span class="section-tag">Integraciones</span>
+    <h2 class="section-h2">Se conecta con lo que <em>ya usan</em></h2>
+    <p class="section-body">No es necesario cambiar las herramientas del estudio. El sistema opera encima de lo que ya tienen.</p>
+  </div>
+  <div class="int-grid fade-up">
+    <div class="int-item"><div class="int-icon">💬</div><div><div class="int-name">WhatsApp Business</div><div class="int-cat">Canal principal</div></div></div>
+    <div class="int-item"><div class="int-icon">📄</div><div><div class="int-name">Microsoft Word</div><div class="int-cat">Redacción asistida</div></div></div>
+    <div class="int-item"><div class="int-icon">📧</div><div><div class="int-name">Outlook</div><div class="int-cat">Gestión de emails</div></div></div>
+    <div class="int-item"><div class="int-icon">📊</div><div><div class="int-name">Google Sheets</div><div class="int-cat">CRM y reportes</div></div></div>
+    <div class="int-item"><div class="int-icon">📅</div><div><div class="int-name">Google Calendar</div><div class="int-cat">Agendamiento</div></div></div>
+    <div class="int-item"><div class="int-icon">✍️</div><div><div class="int-name">DocuSign</div><div class="int-cat">Firma de contratos</div></div></div>
+    <div class="int-item"><div class="int-icon">🗂️</div><div><div class="int-name">Box / Drive</div><div class="int-cat">Gestión documental</div></div></div>
+    <div class="int-item"><div class="int-icon">⚖️</div><div><div class="int-name">Claude for Legal</div><div class="int-cat">IA jurídica Anthropic</div></div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contacto">
+  <span class="section-tag cta-tag" style="display:block; text-align:center;">Empecemos</span>
+  <h2 class="cta-h2">¿Su estudio listo para el <em>siguiente nivel</em>?</h2>
+  <p class="cta-sub">Demo gratuita de 30 minutos. Le mostramos cómo funciona para su área de práctica específica.</p>
+  <div class="cta-actions">
+    <a href="https://wa.me/56932446500?text=Hola%2C%20quiero%20ver%20el%20demo%20de%20LegalAI%20para%20mi%20estudio" class="btn-cta-gold" target="_blank">💬 WhatsApp ahora</a>
+    <a href="mailto:sebastiandev25@gmail.com" class="btn-cta-border">✉ Enviar email</a>
+  </div>
+  <div class="cta-note">Sin compromiso · Respuesta en menos de 2 horas · Lunes a sábado</div>
+</section>
+
+<footer>
+  <div class="footer-logo">Legal<em>AI</em> by Sebastián Bravo</div>
+  <ul class="footer-links">
+    <li><a href="#planes">Planes</a></li>
+    <li><a href="#flujo">Cómo funciona</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 · Biobío, Chile · sebastiandev25@gmail.com</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  nav.style.borderBottomColor = window.scrollY > 40 ? 'rgba(13,13,11,0.15)' : 'rgba(13,13,11,0.08)';
+});
+</script>
+</body>
+</html>
